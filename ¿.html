@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Quiz Romántico</title>
+  <style>
+    /* Estilos generales */
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #000;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .container {
+      width: 90%;
+      max-width: 600px;
+      text-align: center;
+      border: 2px solid #ff0000;
+      padding: 20px;
+      border-radius: 10px;
+      background-color: rgba(0,0,0,0.8);
+      box-shadow: 0 0 20px rgba(255,0,0,0.5);
+      animation: fadeIn 1s ease-in;
+    }
+    /* Animaciones */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.9); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    @keyframes fadeOut {
+      from { opacity: 1; }
+      to { opacity: 0; }
+    }
+    @keyframes slideIn {
+      from { transform: translateY(-20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    img {
+      width: 100%;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      animation: slideIn 1s ease-out;
+    }
+    .question {
+      font-size: 1.2em;
+      margin-bottom: 20px;
+    }
+    .options {
+      list-style: none;
+      padding: 0;
+    }
+    .options li {
+      margin: 10px 0;
+    }
+    .option-btn {
+      background-color: #ff0000;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      font-size: 1em;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    .option-btn:hover {
+      background-color: #cc0000;
+    }
+    /* Clase para el efecto fade-out */
+    .fade-out {
+      animation: fadeOut 0.5s forwards;
+    }
+    .hidden {
+      display: none;
+    }
+    .hint {
+      margin-top: 15px;
+      font-style: italic;
+      color: #ff9999;
+      min-height: 1.2em;
+    }
+    /* Pantalla de canje */
+    .redeem {
+      animation: fadeIn 1s ease-in;
+    }
+    .redeem button {
+      background-color: #ff0000;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      margin: 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    .redeem button:hover {
+      background-color: #cc0000;
+    }
+    /* Sección Bonus */
+    #bonusSection {
+      animation: fadeIn 1s ease-in;
+    }
+    #bonusSection h2 {
+      margin-bottom: 20px;
+    }
+    .bonus-options {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 20px;
+    }
+    .bonus-btn {
+      background-color: #ff0000;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      font-size: 1em;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: transform 0.3s ease, background-color 0.3s ease;
+    }
+    .bonus-btn:hover {
+      background-color: #cc0000;
+    }
+    /* Estilo para la foto de cada pregunta y bonus */
+    .question-photo {
+      max-width: 100%;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container" id="quizContainer">
+    <!-- Área de preguntas -->
+    <div id="quizContent">
+      <!-- Imagen para cada pregunta -->
+      <img id="questionPhoto" class="question-photo" src="" alt="Foto de la pregunta">
+      <div class="question" id="questionText"></div>
+      <ul class="options" id="optionsList">
+        <!-- Opciones se generan dinámicamente -->
+      </ul>
+      <div id="hint" class="hint"></div>
+    </div>
+    <!-- Pantalla de canje de premios -->
+    <div id="redeemScreen" class="redeem hidden">
+      <h2>¡Terminaste el Quiz!</h2>
+      <p>Tu puntaje: <span id="finalScore"></span></p>
+      <p>Canjea tus puntos:</p>
+      <button id="prize10" data-cost="10">Premio de 10 puntos</button>
+      <button id="prize30" data-cost="30">Premio de 30 puntos</button>
+      <p id="redeemMsg"></p>
+      <br>
+      <!-- Botón para activar la pregunta bonus -->
+      <button id="bonusBtn">PREGUNTA BONUS</button>
+    </div>
+    <!-- Sección de Pregunta Bonus -->
+    <div id="bonusSection" class="hidden">
+      <!-- Imagen para la pregunta bonus -->
+      <img id="bonusPhoto" class="question-photo" src="C:/Users/joaqu/Desktop/aniversario/Martina.png" alt="VS LEGENDARIO">
+      <h2>¿Quién es mas linda? (Pregunta seria)</h2>
+      <p>Elige una opción:</p>
+      <div class="bonus-options">
+        <button id="bonusLeft" class="bonus-btn">Palo BEBE 😻</button>
+        <button id="bonusRight" class="bonus-btn">Martina 🙄</button>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Array de preguntas con opción de foto, respuesta correcta y pista
+    const questions = [
+      {
+        question: "Pregunta facil, ¿Qué pasó de importante ese día?",
+        options: ["Me quedé por primera vez a dormir", "Te pedí que seas mi novia", "Fui a tu casa por primera vez", "Fuimos a manejar por primera vez"],
+        correct: 2,
+        hint: "Pista: No necesitas pistas, si no la sabes cierra la página y cortamos.",
+        image: "C:/Users/joaqu/Desktop/aniversario/f1.jpg"  // Foto para la pregunta
+      },
+      {
+        question: "¿Qué festejamos ese día?",
+        options: ["Primer mes", "Que yo me iba de vacaciones", "Cumple de un familiar", "14 de febrero"],
+        correct: 3,
+        hint: "Pista: Estábamos en tu casa viendo GH antes de que te vayas.",
+        image: "C:/Users/joaqu/Desktop/aniversario/f2.jpg"
+      },
+      {
+        question: "Para saber si era tan importante... ¿Por qué te enojaste conmigo ese día?",
+        options: ["Porque me olvidé que cumplíamos mes", "Porque me fui y no te di las flores", "Porque me fui a teñir el pelo", "Porque me fui a tatuar algo que no querías"],
+        correct: 1,
+        hint: "Pista: Septiembre.",
+        image: "C:/Users/joaqu/Desktop/aniversario/f3.jpg"
+      },
+      {
+        question: "¿A dónde fuimos ese día?",
+        options: ["Antares", "Bounce", "Museum", "Picheo"],
+        correct: 3,
+        hint: "Pista: Ritmos suaves y envolventes.",
+        image: "C:/Users/joaqu/Desktop/aniversario/f4.jpg"
+      }
+    ];
+    
+    let currentQuestionIndex = 0;
+    let score = 0;
+    
+    const questionText = document.getElementById("questionText");
+    const optionsList = document.getElementById("optionsList");
+    const quizContent = document.getElementById("quizContent");
+    const hintDiv = document.getElementById("hint");
+    const questionPhoto = document.getElementById("questionPhoto");
+    const redeemScreen = document.getElementById("redeemScreen");
+    const finalScoreSpan = document.getElementById("finalScore");
+    const redeemMsg = document.getElementById("redeemMsg");
+    const bonusBtn = document.getElementById("bonusBtn");
+    const bonusSection = document.getElementById("bonusSection");
+    const bonusPhoto = document.getElementById("bonusPhoto");
+    const bonusLeft = document.getElementById("bonusLeft");
+    const bonusRight = document.getElementById("bonusRight");
+    
+    // Función para cargar la pregunta principal
+    function loadQuestion() {
+      // Reiniciar pista
+      hintDiv.textContent = "";
+      // Limpiar opciones
+      optionsList.innerHTML = "";
+    
+      // Verificar si hay más preguntas
+      if (currentQuestionIndex < questions.length) {
+        const currentQuestion = questions[currentQuestionIndex];
+        questionText.textContent = currentQuestion.question;
+    
+        // Mostrar la imagen si existe
+        if (currentQuestion.image) {
+          questionPhoto.src = currentQuestion.image;
+          questionPhoto.style.display = "block";
+        } else {
+          questionPhoto.style.display = "none";
+        }
+    
+        // Crear botones para las opciones
+        currentQuestion.options.forEach((option, index) => {
+          const li = document.createElement("li");
+          const button = document.createElement("button");
+          button.textContent = option;
+          button.className = "option-btn";
+          // Evento click para cada opción
+          button.addEventListener("click", () => {
+            if (index === currentQuestion.correct) {
+              // Respuesta correcta: sumar puntos y animar desvanecimiento
+              score += 10;
+              quizContent.classList.add("fade-out");
+              quizContent.addEventListener("animationend", nextQuestion, { once: true });
+            } else {
+              // Respuesta incorrecta: mostrar pista y permitir reintento
+              hintDiv.textContent = currentQuestion.hint;
+            }
+          });
+          li.appendChild(button);
+          optionsList.appendChild(li);
+        });
+      } else {
+        // Si se han respondido todas las preguntas, mostrar la pantalla de canje
+        showRedeemScreen();
+      }
+    }
+    
+    // Pasar a la siguiente pregunta
+    function nextQuestion() {
+      quizContent.classList.remove("fade-out");
+      currentQuestionIndex++;
+      loadQuestion();
+    }
+    
+    // Mostrar la pantalla de canje
+    function showRedeemScreen() {
+      quizContent.classList.add("hidden");
+      redeemScreen.classList.remove("hidden");
+      finalScoreSpan.textContent = score;
+    }
+    
+    // Manejo de canje de premios
+    function redeemPrize(cost) {
+      if (score >= cost) {
+        redeemMsg.textContent = "¡Premio canjeado con éxito!";
+      } else {
+        redeemMsg.textContent = "No tienes suficientes puntos para este premio.";
+      }
+    }
+    
+    document.getElementById("prize10").addEventListener("click", () => {
+      redeemPrize(10);
+    });
+    
+    document.getElementById("prize30").addEventListener("click", () => {
+      redeemPrize(30);
+    });
+    
+    // Lógica para la Pregunta Bonus
+    let bonusRightClicks = 0;
+    const bonusThreshold = 15; // Número de clics para cambiar el texto
+    
+    // Al pulsar el botón de Pregunta Bonus se muestra la sección bonus
+    bonusBtn.addEventListener("click", () => {
+      redeemScreen.classList.add("hidden");
+      bonusSection.classList.remove("hidden");
+      // Asignar la imagen para la pregunta bonus
+      bonusPhoto.src = "C:/Users/joaqu/Desktop/aniversario/Martina.png";
+      bonusPhoto.style.display = "block";
+    });
+    
+    // Si se pulsa la opción correcta (la izquierda) se deshabilitan las dos
+    bonusLeft.addEventListener("click", () => {
+      bonusLeft.disabled = true;
+      bonusRight.disabled = true;
+      bonusLeft.textContent = "¡Gracias por aceptar el desafío bonus!";
+    });
+    
+    // Al pulsar la opción incorrecta (la derecha) se agranda la opción izquierda
+    bonusRight.addEventListener("click", () => {
+      bonusRightClicks++;
+      // Aumenta el tamaño de la opción izquierda en cada clic
+      let scale = 1 + bonusRightClicks * 0.1;
+      bonusLeft.style.transform = `scale(${scale})`;
+      bonusLeft.style.transition = "transform 0.3s ease";
+    
+      // Cuando se llegue al umbral, cambiar el texto final y deshabilitar botones
+      if (bonusRightClicks >= bonusThreshold) {
+        bonusLeft.textContent = "Bueno me rindo, vos sos la mas linda";
+        bonusLeft.disabled = true;
+        bonusRight.disabled = true;
+      }
+    });
+    
+    // Cargar la primera pregunta al iniciar
+    loadQuestion();
+  </script>
+</body>
+</html>
